@@ -1,9 +1,5 @@
 package com.alibaba.easyexcel.test.demo.read;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
 import com.alibaba.easyexcel.test.util.TestFileUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelReader;
@@ -13,15 +9,18 @@ import com.alibaba.excel.annotation.format.NumberFormat;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.converters.DefaultConverterLoader;
 import com.alibaba.excel.enums.CellExtraTypeEnum;
+import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.read.listener.PageReadListener;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.read.metadata.ReadSheet;
 import com.alibaba.excel.util.ListUtils;
 import com.alibaba.fastjson2.JSON;
-
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 读的常见写法
@@ -30,8 +29,22 @@ import org.junit.Test;
  */
 //@Ignore
 @Slf4j
-public class ReadTest {
+public class ReadUserTest {
 
+
+    @Test
+    public void testSheetList () {
+
+        String fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
+        File file = new File(fileName);
+        ExcelReaderBuilder excelReaderBuilder = EasyExcel.read(file);
+        ExcelReader excelReader = excelReaderBuilder.build();
+        List<ReadSheet> sheets = excelReader.excelExecutor().sheetList();
+        for (ReadSheet sheet : sheets) {
+            System.out.println( sheet.getSheetName());
+            excelReader.read(sheet);
+        }
+    }
     /**
      * 最简单的读
      * <p>
@@ -45,21 +58,21 @@ public class ReadTest {
     public void simpleRead() {
         // 写法1：JDK8+ ,不用额外写一个DemoDataListener
         // since: 3.0.0-beta1
-        String fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
+        String fileName = TestFileUtil.getPath() + "demo" + File.separator + "导入模板.xlsx";
         // 这里 需要指定读用哪个class去读，然后读取第一个sheet 文件流会自动关闭
         // 这里默认每次会读取100条数据 然后返回过来 直接调用使用数据就行
         // 具体需要返回多少行可以在`PageReadListener`的构造函数设置
-        EasyExcel.read(fileName, DemoData.class, new PageReadListener<DemoData>(dataList -> {
-            for (DemoData demoData : dataList) {
+        EasyExcel.read(fileName, UserData.class, new PageReadListener<UserData>(dataList -> {
+            for (UserData demoData : dataList) {
                 log.info("读取到一条数据{}", JSON.toJSONString(demoData));
             }
-        })).sheet().doRead();
+        })).sheet(1).doRead();
 
         // 写法2：
         // 匿名内部类 不用额外写一个DemoDataListener
         fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
         // 这里 需要指定读用哪个class去读，然后读取第一个sheet 文件流会自动关闭
-        EasyExcel.read(fileName, DemoData.class, new ReadListener<DemoData>() {
+        EasyExcel.read(fileName, UserData.class, new ReadListener<UserData>() {
             /**
              * 单次缓存的数据量
              */
@@ -67,10 +80,10 @@ public class ReadTest {
             /**
              *临时存储
              */
-            private List<DemoData> cachedDataList = ListUtils.newArrayListWithExpectedSize(BATCH_COUNT);
+            private List<UserData> cachedDataList = ListUtils.newArrayListWithExpectedSize(BATCH_COUNT);
 
             @Override
-            public void invoke(DemoData data, AnalysisContext context) {
+            public void invoke(UserData data, AnalysisContext context) {
                 cachedDataList.add(data);
                 if (cachedDataList.size() >= BATCH_COUNT) {
                     saveData();
@@ -102,11 +115,9 @@ public class ReadTest {
         // 写法4
         fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
         // 一个文件一个reader
-        try (ExcelReader excelReader = EasyExcel.read(fileName, DemoData.class, new DemoDataListener()).build()) {
+        try (ExcelReader excelReader = EasyExcel.read(fileName, UserData.class, new DemoDataListener()).build()) {
             // 构建一个sheet 这里可以指定名字或者no
             ReadSheet readSheet = EasyExcel.readSheet(0).build();
-
-
             // 读取一个sheet
             excelReader.read(readSheet);
         }

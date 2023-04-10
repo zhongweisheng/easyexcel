@@ -24,7 +24,9 @@ public class CustomSheetWriteHandler implements SheetWriteHandler {
         // 区间设置 第一列第一行和第二行的数据。由于第一行是头，所以第一、二行的数据实际上是第二三行
         CellRangeAddressList cellRangeAddressList = new CellRangeAddressList(1, 2, 0, 0);
         DataValidationHelper helper = context.getWriteSheetHolder().getSheet().getDataValidationHelper();
+
         DataValidationConstraint constraint = helper.createExplicitListConstraint(new String[] {"测试1", "测试2"});
+
         DataValidation dataValidation = helper.createValidation(constraint, cellRangeAddressList);
         context.getWriteSheetHolder().getSheet().addValidationData(dataValidation);
     }
