@@ -72,7 +72,7 @@ public class CustomSheetWriteHandler implements SheetWriteHandler {
             }
             Name category1Name = workbook.createName();
             category1Name.setNameName(sheetName);
-            // 4 $A$1:$A$N代表 以A列1行开始获取N行下拉数据
+            // 4 $A$1:$A$N代表 以A列1行开始获取N行下拉数据   zws : $A$1 绝对位置
             category1Name.setRefersToFormula(sheetName + "!$A$1:$A$" + (v.length));
             // 5 将刚才设置的sheet引用到你的下拉列表中,1表示从行的序号1开始（开始行，通常行的序号为0的行是表头），50表示行的序号50（结束行），表示从行的序号1到50，k表示开始列序号和结束列序号
             CellRangeAddressList addressList = new CellRangeAddressList(1, batchSize, k, k);
